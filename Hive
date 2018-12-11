@@ -170,7 +170,7 @@ Now, we can perform any query on the table ‘sample’:
 
 SELECT first_name FROM sample WHERE gender = ‘male’;
 
-24. Scenario:
+17. Scenario:
 Suppose, I have a lot of small CSV files present in /input directory in HDFS and I want to create a single Hive table corresponding to these files. The data in these files are in the format: {id, name, e-mail, country}. Now, as we know, Hadoop performance degrades when we use lots of small files.
 
 So, how will you solve this problem where we want to create a single Hive table for lots of small files without degrading the performance of the system?
