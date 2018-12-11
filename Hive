@@ -1,1 +1,76 @@
 Interview Questions
+
+1.Why mapreduce will not run if you run select * from table in hive?
+
+Whenever we fire a query like select * from tablename, 
+Hive reads the data file and fetches the entire data without doing any aggregation(min/max/count etc.). It'll call a 
+FetchTask rather than a mapreduce task.
+
+This is also an optimization technique in Hive. hive.fetch.task.conversion property can (i.e. FETCH task) minimize 
+latency of map-reduce overhead.
+
+2. What is ObjectInspector functionality ?
+Ans : Hive uses ObjectInspector to analyze the internal structure of the row object and also
+the structure of the individual columns.
+ObjectInspector provides a uniform way to access complex objects that can be stored in
+multiple formats in the memory, including:
+•Instance of a Java class (Thrift or native Java)
+•A standard Java object (we use java.util.List to represent Struct and Array, and use
+java.util.Map to represent Map)
+•A lazily-initialized object (For example, a Struct of string fields stored in a single Java string
+object with starting offset for each field)
+A complex object can be represented by a pair of ObjectInspector and Java Object. The
+ObjectInspector not only tells us the structure of the Object, but also gives us ways to access
+the internal fields inside the Object.
+
+3.How will you optimize Hive performance?
+
+refer - https://hortonworks.com/blog/5-ways-make-hive-queries-run-faster/
+There are various ways to run Hive queries faster -
+
+Using Apache Tez execution engine
+Using vectorization
+Using ORCFILE
+Do cost based query optimization.
+
+
+4.What is HCatalog?
+HCatalog enables reading and writing of data in any format for which we use SerDe in Hive. 
+By default, HCatalog supports RC File, CSV, JSON, and Sequence File formats.
+But for custom formats, the user needs to provide InputFormat, OutputFormat, and SerDe information.
+
+It is built on the top of Hive metastore and incorporates components from the Hive DDL. 
+HCatalog also provides the read and write an interface for Pig and MapReduce and uses Hive CLI for issuing commands.
+
+So in short, HCatalog opens up the hive metastore to the other MapReduce tools. 
+As we know every MapReduce tool has its own perception about the HDFS data. 
+PIG consider the data as a set of file while Hive considers it as a set of tables. HCatalog simply simplifies the process.
+
+5.If we use the "Limit 1" in any SQL query in Hive, will Reducer work or not.
+Ans. I think Reducer will work, because as per Hive documentation -- Limit indicates the number of rows to be returned. The rows returned are chosen at random. The following query returns 5 rows from t1 at random.
+
+SELECT * FROM t1 LIMIT 5
+Having to randomly pick, it has to have complete result output from Reducer.
+
+6.What are Hadoop and Hadoop ecosystems?
+Well, this question can be simply answered by anyone. I am just writing few lines for it.
+
+Hadoop is an open source java-based programming framework which is used to process and store large data sets in distributed environment.
+
+Hadoop is one of the top projects of Apache Software Foundation. Also, Hadoop makes use of commodity hardware for its nodes (DataNodes) and so maintaining a low-cost system.
+
+Here are some of the Hadoop ecosystems which are frequently being used-
+
+HDFS: To store the large sets of data
+Hive: To process structured data
+Pig: To process unstructured data
+Oozie: Create workflow jobs
+Flume: Get real-time data from other sources
+MapReduce: Data analysis
+HBase: NoSQL database used for record level operation
+Sqoop: Import/Export data to and from RDBMS to Hadoop system
+Kafka: For messaging
+There are many another component in Hadoop ecosystem, but the above are important and mostly used.
+
+7.
+
