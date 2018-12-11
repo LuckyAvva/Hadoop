@@ -1,1 +1,197 @@
+Interview Questions
 
+1.Why mapreduce will not run if you run select * from table in hive?
+
+Whenever we fire a query like select * from tablename, 
+Hive reads the data file and fetches the entire data without doing any aggregation(min/max/count etc.). It'll call a 
+FetchTask rather than a mapreduce task.
+
+This is also an optimization technique in Hive. hive.fetch.task.conversion property can (i.e. FETCH task) minimize 
+latency of map-reduce overhead.
+
+2. What is ObjectInspector functionality ?
+Ans : Hive uses ObjectInspector to analyze the internal structure of the row object and also
+the structure of the individual columns.
+ObjectInspector provides a uniform way to access complex objects that can be stored in
+multiple formats in the memory, including:
+•Instance of a Java class (Thrift or native Java)
+•A standard Java object (we use java.util.List to represent Struct and Array, and use
+java.util.Map to represent Map)
+•A lazily-initialized object (For example, a Struct of string fields stored in a single Java string
+object with starting offset for each field)
+A complex object can be represented by a pair of ObjectInspector and Java Object. The
+ObjectInspector not only tells us the structure of the Object, but also gives us ways to access
+the internal fields inside the Object.
+
+3.How will you optimize Hive performance?
+
+refer - https://hortonworks.com/blog/5-ways-make-hive-queries-run-faster/
+There are various ways to run Hive queries faster -
+
+Using Apache Tez execution engine
+Using vectorization
+Using ORCFILE
+Do cost based query optimization.
+
+
+4.What is HCatalog?
+HCatalog enables reading and writing of data in any format for which we use SerDe in Hive. 
+By default, HCatalog supports RC File, CSV, JSON, and Sequence File formats.
+But for custom formats, the user needs to provide InputFormat, OutputFormat, and SerDe information.
+
+It is built on the top of Hive metastore and incorporates components from the Hive DDL. 
+HCatalog also provides the read and write an interface for Pig and MapReduce and uses Hive CLI for issuing commands.
+
+So in short, HCatalog opens up the hive metastore to the other MapReduce tools. 
+As we know every MapReduce tool has its own perception about the HDFS data. 
+PIG consider the data as a set of file while Hive considers it as a set of tables. HCatalog simply simplifies the process.
+
+5.If we use the "Limit 1" in any SQL query in Hive, will Reducer work or not.
+Ans. I think Reducer will work, because as per Hive documentation -- Limit indicates the number of rows to be returned. The rows returned are chosen at random. The following query returns 5 rows from t1 at random.
+
+SELECT * FROM t1 LIMIT 5
+Having to randomly pick, it has to have complete result output from Reducer.
+
+6.What are Hadoop and Hadoop ecosystems?
+Well, this question can be simply answered by anyone. I am just writing few lines for it.
+
+Hadoop is an open source java-based programming framework which is used to process and store large data sets in distributed environment.
+
+Hadoop is one of the top projects of Apache Software Foundation. Also, Hadoop makes use of commodity hardware for its nodes (DataNodes) and so maintaining a low-cost system.
+
+Here are some of the Hadoop ecosystems which are frequently being used-
+
+HDFS: To store the large sets of data
+Hive: To process structured data
+Pig: To process unstructured data
+Oozie: Create workflow jobs
+Flume: Get real-time data from other sources
+MapReduce: Data analysis
+HBase: NoSQL database used for record level operation
+Sqoop: Import/Export data to and from RDBMS to Hadoop system
+Kafka: For messaging
+There are many another component in Hadoop ecosystem, but the above are important and mostly used.
+
+7. Explain about SORT BY, ORDER BY, DISTRIBUTE BY and CLUSTER BY in Hive.
+
+SORT BY – Data is ordered at each of ‘N’ reducers where the reducers can have overlapping range of data.
+
+ORDER BY- This is similar to the ORDER BY in SQL where total ordering of data takes place by passing it to a single reducer.
+
+DISTRUBUTE BY – It is used to distribute the rows among the reducers. Rows that have the same distribute by columns will go to the same reducer.
+
+CLUSTER BY- It is a combination of DISTRIBUTE BY and SORT BY where each of the N reducers gets non overlapping range of data which is then sorted by those ranges at the respective reducers.
+
+8.How can you prevent a large job from running for a long time?
+
+This can be achieved by setting the MapReduce jobs to execute in strict mode set hive.mapred.mode=strict;
+
+The strict mode ensures that the queries on partitioned tables cannot execute without defining a WHERE clause.
+
+9.What is a Hive Metastore?
+
+Hive Metastore is a central repository that stores metadata in external database.
+
+10.Differentiate between describe and describe extended.
+
+Describe database/schema- This query displays the name of the database, the root location on the file system and comments if any.
+
+Describe extended database/schema- Gives the details of the database or schema in a detailed manner
+
+11. Is it possible to overwrite Hadoop MapReduce configuration in Hive?
+
+Yes, hadoop MapReduce configuration can be overwritten by changing the hive conf settings file.
+
+12.Explain the difference between partitioning and bucketing.
+
+Partitioning and Bucketing of tables is done to improve the query performance. Partitioning helps execute queries faster, 
+only if the partitioning scheme has some common range filtering i.e. either by timestamp ranges, by location, etc. 
+Bucketing does not work by default.
+Partitioning helps eliminate data when used in WHERE clause. Bucketing helps organize data inside the partition into 
+multiple files so that same set of data will always be written in the same bucket. Bucketing helps in joining various columns.
+In partitioning technique, a partition is created for every unique value of the column and there could be a situation where several tiny partitions may have to be created. However, with bucketing, one can limit it to a specific number and the data can then be decomposed in those buckets.
+Basically, a bucket is a file in Hive whereas partition is a directory.
+
+13.Explain about the different types of partitioning in Hive?
+
+Partitioning in Hive helps prune the data when executing the queries to speed up processing.
+Partitions are created when data is inserted into the table. In static partitions,
+the name of the partition is hardcoded into the insert statement whereas in a dynamic partition,
+Hive automatically identifies the partition based on the value of the partition field.
+
+Based on how data is loaded into the table, requirements for data and the format in which data is produced at source- static
+or dynamic partition can be chosen. In dynamic partitions the complete data in the file is read and is partitioned through 
+a MapReduce job based into the tables based on a particular field in the file. Dynamic partitions are usually helpful during 
+ETL flows in the data pipeline.
+
+When loading data from huge files, static partitions are preferred over dynamic partitions as they save time in loading data. 
+The partition is added to the table and then the file is moved into the static partition. 
+The partition column value can be obtained from the file name without having to read the complete file.
+
+14. How will you read and write HDFS files in Hive?
+
+i) TextInputFormat- This class is used to read data in plain text file format.
+
+ii) HiveIgnoreKeyTextOutputFormat- This class is used to write data in plain text file format.
+
+iii) SequenceFileInputFormat- This class is used to read data in hadoop SequenceFile format.
+
+iv) SequenceFileOutputFormat- This class is used to write data in hadoop SequenceFile format.
+
+15.How Hive distributes the rows into buckets?
+Hive determines the bucket number for a row by using the formula: hash_function (bucketing_column) modulo (num_of_buckets). Here, hash_function depends on the column data type. For integer data type, the hash_function will be: 
+
+hash_function (int_type_column)= value of int_type_column
+
+16difference between sql and hive
+
+How will you consume this CSV file into the Hive warehouse using built SerDe?
+
+SerDe stands for serializer/deserializer. A SerDe allows us to convert the unstructured bytes into a record that we can 
+process using Hive. SerDes are implemented using Java. Hive comes with several built-in SerDes and many other third-party 
+SerDes are also available. 
+
+Hive provides a specific SerDe for working with CSV files. We can use this SerDe for the sample.csv by issuing following 
+commands:
+
+CREATE EXTERNAL TABLE sample
+
+(id int, first_name string, 
+
+last_name string, email string,
+
+gender string, ip_address string) 
+
+ROW FORMAT SERDE ‘org.apache.hadoop.hive.serde2.OpenCSVSerde’ 
+
+STORED AS TEXTFILE LOCATION ‘/temp’;
+
+Now, we can perform any query on the table ‘sample’:
+
+SELECT first_name FROM sample WHERE gender = ‘male’;
+
+17. Scenario:
+Suppose, I have a lot of small CSV files present in /input directory in HDFS and I want to create a single Hive table corresponding to these files. The data in these files are in the format: {id, name, e-mail, country}. Now, as we know, Hadoop performance degrades when we use lots of small files.
+
+So, how will you solve this problem where we want to create a single Hive table for lots of small files without degrading the performance of the system?
+
+One can use the SequenceFile format which will group these small files together to form a single sequence file. The steps that will be followed in doing so are as follows:
+
+Create a temporary table:
+CREATE TABLE temp_table (id INT, name STRING, e-mail STRING, country STRING)
+
+ROW FORMAT FIELDS DELIMITED TERMINATED BY ‘,’ STORED AS TEXTFILE;
+
+Load the data into temp_table:
+LOAD DATA INPATH ‘/input’ INTO TABLE temp_table;
+
+Create a table that will store data in SequenceFile format:
+CREATE TABLE sample_seqfile (id INT, name STRING, e-mail STRING, country STRING)
+
+ROW FORMAT FIELDS DELIMITED TERMINATED BY ‘,’ STORED AS SEQUENCEFILE;
+
+Transfer the data from the temporary table into the sample_seqfile table:
+INSERT OVERWRITE TABLE sample SELECT * FROM temp_table;
+
+Hence, a single SequenceFile is generated which contains the data present in all of the input files and therefore, 
+the problem of having lots of small files is finally eliminated..
